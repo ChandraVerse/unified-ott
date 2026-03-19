@@ -15,7 +15,7 @@
     "mongoose": "^8.9.0",
     "jsonwebtoken": "^9.0.2",
     "bcryptjs": "^2.4.3",
-    "nodemailer": "^6.9.16",
+    "nodemailer": "^7.0.0",
     "stripe": "^17.4.0",
     "razorpay": "^2.9.5",
     "passport": "^0.7.0",
