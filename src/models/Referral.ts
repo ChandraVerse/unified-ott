@@ -1,26 +1,14 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 
-export interface IReferral extends Document {
-  referrerId: mongoose.Types.ObjectId;
-  refereeId: mongoose.Types.ObjectId;
-  code: string;
-  status: 'pending' | 'completed' | 'rewarded';
-  rewardGiven: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const ReferralSchema = new Schema<IReferral>(
+const ReferralSchema = new Schema(
   {
-    referrerId:  { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    refereeId:   { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    code:        { type: String, required: true, index: true },
-    status:      { type: String, enum: ['pending', 'completed', 'rewarded'], default: 'pending' },
-    rewardGiven: { type: Boolean, default: false },
+    code:       { type: String, required: true },
+    referrerId: { type: Schema.Types.ObjectId, ref: 'User' },
+    referredId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    status:     { type: String, enum: ['pending', 'rewarded', 'expired'], default: 'pending' },
   },
   { timestamps: true }
 );
 
-const Referral: Model<IReferral> =
-  mongoose.models.Referral || mongoose.model<IReferral>('Referral', ReferralSchema);
+const Referral = models.Referral ?? model('Referral', ReferralSchema);
 export default Referral;

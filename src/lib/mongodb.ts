@@ -3,9 +3,7 @@ import mongoose from 'mongoose';
 const MONGODB_URI = process.env.MONGODB_ATLAS_URI as string;
 
 if (!MONGODB_URI) {
-  throw new Error(
-    'Please define the MONGODB_ATLAS_URI environment variable in .env.local'
-  );
+  console.warn('⚠️  MONGODB_ATLAS_URI not set — database features will be unavailable.');
 }
 
 interface MongooseCache {
@@ -15,26 +13,21 @@ interface MongooseCache {
 
 declare global {
   // eslint-disable-next-line no-var
-  var mongooseCache: MongooseCache;
+  var mongoose: MongooseCache | undefined;
 }
 
-if (!global.mongooseCache) {
-  global.mongooseCache = { conn: null, promise: null };
-}
-
-const cached = global.mongooseCache;
+const cached: MongooseCache = global.mongoose ?? { conn: null, promise: null };
+if (!global.mongoose) global.mongoose = cached;
 
 export async function connectDB(): Promise<typeof mongoose> {
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
-    cached.promise = mongoose
-      .connect(MONGODB_URI, {
-        maxPoolSize: 10,
-        serverSelectionTimeoutMS: 5000,
-        socketTimeoutMS: 45000,
-      })
-      .then((m) => m);
+    const opts = {
+      maxPoolSize: 10,
+      bufferCommands: false,
+    };
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((m) => m);
   }
 
   cached.conn = await cached.promise;

@@ -1,31 +1,16 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 
-export interface ISubscription extends Document {
-  userId: mongoose.Types.ObjectId;
-  plan: 'mobile' | 'standard' | 'premium';
-  status: 'active' | 'cancelled' | 'expired' | 'pending';
-  startDate: Date;
-  endDate: Date;
-  autoRenew: boolean;
-  paymentId?: mongoose.Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const SubscriptionSchema = new Schema<ISubscription>(
+const SubscriptionSchema = new Schema(
   {
     userId:    { type: Schema.Types.ObjectId, ref: 'User', required: true },
     plan:      { type: String, enum: ['mobile', 'standard', 'premium'], required: true },
-    status:    { type: String, enum: ['active', 'cancelled', 'expired', 'pending'], default: 'pending' },
-    startDate: { type: Date },
-    endDate:   { type: Date },
-    autoRenew: { type: Boolean, default: true },
-    paymentId: { type: Schema.Types.ObjectId, ref: 'Payment' },
+    price:     { type: Number, required: true },
+    status:    { type: String, enum: ['active', 'cancelled', 'expired'], default: 'active' },
+    startDate: { type: Date, default: Date.now },
+    endDate:   { type: Date, required: true },
   },
   { timestamps: true }
 );
 
-const Subscription: Model<ISubscription> =
-  mongoose.models.Subscription ||
-  mongoose.model<ISubscription>('Subscription', SubscriptionSchema);
+const Subscription = models.Subscription ?? model('Subscription', SubscriptionSchema);
 export default Subscription;
